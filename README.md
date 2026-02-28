@@ -6,6 +6,8 @@ Uses the Anthropic OAuth API to display the exact same value as [Claude Usage](h
 
 ## Install
 
+**Platform:** Windows only
+
 **Requirements:** Go 1.24+, MSYS2 with GCC, Node.js, [Claude Code CLI](https://claude.ai/download) (logged in)
 
 ```bash
