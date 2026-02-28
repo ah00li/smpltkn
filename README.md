@@ -4,6 +4,8 @@ Always-on-top desktop widget showing real-time Claude usage percentage. Works wi
 
 Uses the Anthropic OAuth API to display the exact same value as [Claude Usage](https://claude.ai/account/usage).
 
+![](.github/sc.jpeg)
+
 ## Install
 
 **Platform:** Windows only
