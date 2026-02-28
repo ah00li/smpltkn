@@ -101,11 +101,11 @@ func fetchFromOAuthAPI() (float64, error) {
 // CCUsageBlocks represents the JSON output from ccusage blocks --json
 type CCUsageBlocks struct {
 	Blocks []struct {
-		ID        string `json:"id"`
-		StartTime string `json:"startTime"`
-		EndTime   string `json:"endTime"`
-		IsActive  bool   `json:"isActive"`
-		IsGap     bool   `json:"isGap"`
+		ID          string `json:"id"`
+		StartTime   string `json:"startTime"`
+		EndTime     string `json:"endTime"`
+		IsActive    bool   `json:"isActive"`
+		IsGap       bool   `json:"isGap"`
 		TokenCounts struct {
 			InputTokens              int `json:"inputTokens"`
 			OutputTokens             int `json:"outputTokens"`
@@ -144,11 +144,11 @@ func fetchFromCCUsage() (*apiPkg.RateLimitInfo, error) {
 
 // getActiveBlock finds the active 5h block and returns token counts.
 func getActiveBlock(blocks []struct {
-	ID        string `json:"id"`
-	StartTime string `json:"startTime"`
-	EndTime   string `json:"endTime"`
-	IsActive  bool   `json:"isActive"`
-	IsGap     bool   `json:"isGap"`
+	ID          string `json:"id"`
+	StartTime   string `json:"startTime"`
+	EndTime     string `json:"endTime"`
+	IsActive    bool   `json:"isActive"`
+	IsGap       bool   `json:"isGap"`
 	TokenCounts struct {
 		InputTokens              int `json:"inputTokens"`
 		OutputTokens             int `json:"outputTokens"`
@@ -165,11 +165,10 @@ func getActiveBlock(blocks []struct {
 	return 0, 0, 0
 }
 
-
 type state struct {
-	mu     sync.Mutex
-	win    fyne.Window
-	cfg    *config.Config
+	mu  sync.Mutex
+	win fyne.Window
+	cfg *config.Config
 
 	pinned bool
 	pinBtn *widget.Button
@@ -183,13 +182,13 @@ type state struct {
 // Run creates and shows the widget window.
 func Run(cfg *config.Config) {
 	a := app.NewWithID("com.claudetokenwidget")
-	win := a.NewWindow("Claude Token Widget")
+	win := a.NewWindow("Claude Usage Widget")
 	win.Resize(fyne.NewSize(220, 150))
 
 	s := &state{
-		win:           win,
-		cfg:           cfg,
-		pinned:        cfg.PinnedOnTop,
+		win:        win,
+		cfg:        cfg,
+		pinned:     cfg.PinnedOnTop,
 		tokensBar:  binding.NewFloat(),
 		tokensUsed: binding.NewString(),
 		statusLine: binding.NewString(),
@@ -345,7 +344,7 @@ func (s *state) checkDependencies() {
 // refreshLoop polls ccusage on the configured interval.
 func (s *state) refreshLoop() {
 	s.doRefresh() // immediate first fetch
-	
+
 	ticker := time.NewTicker(s.cfg.RefreshInterval)
 	defer ticker.Stop()
 
