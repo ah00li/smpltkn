@@ -134,7 +134,6 @@ func fetchFromCCUsage() (*apiPkg.RateLimitInfo, error) {
 	inTok, outTok, totalTok := getActiveBlock(usage.Blocks)
 
 	info := &apiPkg.RateLimitInfo{
-		LastUpdated:      time.Now(),
 		InputTokensUsed:  inTok,
 		OutputTokensUsed: outTok,
 		BlockTotalTokens: totalTok,
@@ -169,12 +168,10 @@ func getActiveBlock(blocks []struct {
 
 type state struct {
 	mu     sync.Mutex
-	app    fyne.App
 	win    fyne.Window
 	cfg    *config.Config
 
 	pinned bool
-	pinOn  bool
 	pinBtn *widget.Button
 
 	// Data bindings
@@ -187,21 +184,17 @@ type state struct {
 func Run(cfg *config.Config) {
 	a := app.NewWithID("com.claudetokenwidget")
 	win := a.NewWindow("Claude Token Widget")
-	win.SetFixedSize(false)
 	win.Resize(fyne.NewSize(220, 150))
 
 	s := &state{
-		app:           a,
 		win:           win,
 		cfg:           cfg,
 		pinned:        cfg.PinnedOnTop,
-		pinOn:         cfg.PinnedOnTop,
 		tokensBar:  binding.NewFloat(),
 		tokensUsed: binding.NewString(),
 		statusLine: binding.NewString(),
 	}
 
-	s.resetBindings()
 	s.applyManualValues()
 
 	// Check dependencies on startup
@@ -244,7 +237,7 @@ func (s *state) buildUI() fyne.CanvasObject {
 	s.pinBtn.Importance = widget.LowImportance
 
 	refreshBtn := widget.NewButtonWithIcon("", theme.ViewRefreshIcon(), func() {
-		go s.manualRefresh()
+		go s.doRefresh()
 	})
 	refreshBtn.Importance = widget.LowImportance
 
@@ -262,25 +255,13 @@ func (s *state) buildUI() fyne.CanvasObject {
 	return container.NewBorder(nil, footer, nil, nil, content)
 }
 
-// resetBindings sets all display values to their empty state.
-func (s *state) resetBindings() {
-	s.tokensBar.Set(0)
-	s.tokensUsed.Set("")
-	if s.pinBtn != nil {
-		s.pinBtn.SetText("📍")
-	}
-}
-
 // togglePin switches the always-on-top state
 func (s *state) togglePin() {
 	s.pinned = !s.pinned
-	s.pinOn = s.pinned
-	if s.pinOn {
-		if s.pinBtn != nil {
+	if s.pinBtn != nil {
+		if s.pinned {
 			s.pinBtn.SetText("📌")
-		}
-	} else {
-		if s.pinBtn != nil {
+		} else {
 			s.pinBtn.SetText("📍")
 		}
 	}
@@ -294,9 +275,9 @@ func (s *state) applyManualValues() {
 	cfg := s.cfg
 
 	// Update pin icon based on saved state
-	s.pinOn = cfg.PinnedOnTop
+	s.pinned = cfg.PinnedOnTop
 	if s.pinBtn != nil {
-		if s.pinOn {
+		if s.pinned {
 			s.pinBtn.SetText("📌")
 		} else {
 			s.pinBtn.SetText("📍")
@@ -322,7 +303,6 @@ func (s *state) applyManualValues() {
 		}
 	}
 
-	s.statusLine.Set("ccusage")
 }
 
 // checkDependencies verifies that required tools are installed
@@ -386,7 +366,7 @@ func (s *state) doRefresh() {
 	if oauthErr == nil {
 		// Use OAuth percentage as the source of truth
 		if info == nil {
-			info = &apiPkg.RateLimitInfo{LastUpdated: time.Now()}
+			info = &apiPkg.RateLimitInfo{}
 		}
 		info.IndicatorPercent = utilization
 		s.applyInfo(info)
@@ -425,11 +405,6 @@ func (s *state) applyInfo(info *apiPkg.RateLimitInfo) {
 
 	// Update UI
 	s.applyManualValues()
-}
-
-// manualRefresh triggers an immediate refresh
-func (s *state) manualRefresh() {
-	s.doRefresh()
 }
 
 // openSettings shows a dialog to configure limits and refresh interval

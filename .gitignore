@@ -4,7 +4,6 @@
 *.dll
 *.so
 *.dylib
-token_widget.exe
 
 # Test binary
 *.test
