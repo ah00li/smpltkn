@@ -1,4 +1,4 @@
-# Claude Token Widget
+# Simple Claude Usage Widget
 
 Always-on-top desktop widget showing real-time Claude usage percentage. Works with Pro, Max, and Team plans.
 
